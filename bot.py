@@ -1,3 +1,4 @@
+from os import path
 from mss import mss
 from time import time
 import cv2 as cv
@@ -9,9 +10,13 @@ STOP_KEY = 'k'
 TOGGLE_KEY = 'f'
 KICK_KEY = 'e'
 
-LEFT_TEMPLATE = cv.cvtColor(cv.imread('assets/left.png'), cv.COLOR_BGRA2GRAY)
-MIDDLE_TEMPLATE = cv.cvtColor(cv.imread('assets/middle.png'), cv.COLOR_BGRA2GRAY)
-RIGHT_TEMPLATE = cv.cvtColor(cv.imread('assets/right.png'), cv.COLOR_BGRA2GRAY)
+def imgpath(filename):
+    filename = path.join('assets', filename)
+    return path.abspath(path.join(path.dirname(__file__), filename))
+
+LEFT_TEMPLATE = cv.cvtColor(cv.imread(imgpath('left.png')), cv.COLOR_BGRA2GRAY)
+MIDDLE_TEMPLATE = cv.cvtColor(cv.imread(imgpath('middle.png')), cv.COLOR_BGRA2GRAY)
+RIGHT_TEMPLATE = cv.cvtColor(cv.imread(imgpath('right.png')), cv.COLOR_BGRA2GRAY)
 
 LEFT_DIM = {"top": 626, "left": 462, "width": 27, "height": 27}
 MIDDLE_DIM = {"top": 629, "left": 744, "width": 27, "height": 27}
