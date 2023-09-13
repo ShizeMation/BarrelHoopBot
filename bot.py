@@ -42,7 +42,8 @@ listener = kb.GlobalHotKeys({
 })
 listener.start()
 
-delay = 0
+hoop_time = 0
+kick_time = 0
 
 right_dim = {"top": 608, "left": 0, "width": 19, "height": 19}
 
@@ -54,36 +55,39 @@ with mss() as sct:
                     leftSS = cv.cvtColor(np.array(sct.grab(LEFT_DIM)), cv.COLOR_BGRA2GRAY)
                     resLeft = cv.matchTemplate(leftSS, LEFT_TEMPLATE, MATCH_METHOD)
                     if (cv.minMaxLoc(resLeft)[0] < 0.2):
-                        delay = time()
+                        hoop_time = time()
                         print("Started timing")
                         state = "timing"
                 case "timing":
                     middleSS = cv.cvtColor(np.array(sct.grab(MIDDLE_DIM)), cv.COLOR_BGRA2GRAY)
                     resMiddle = cv.matchTemplate(middleSS, MIDDLE_TEMPLATE, MATCH_METHOD)
                     if (cv.minMaxLoc(resMiddle)[0] < 0.05):
-                        delay = time() - delay
-                        print(f"  Finished timing: {delay:.3f}")
-                        if (delay < 0.45):
-                            right_dim["left"] = 1120
-                        elif (delay < 0.48):
-                            right_dim["left"] = 1150
-                        elif (delay < 0.51):
+                        hoop_time = time() - hoop_time
+                        print(f"  Finished timing: {hoop_time:.3f}")
+                        if (hoop_time < 0.45):
+                            right_dim["left"] = 1130
+                        elif (hoop_time < 0.48):
+                            right_dim["left"] = 1160
+                        elif (hoop_time < 0.51):
                             right_dim["left"] = 1190
-                        elif (delay < 0.54):
-                            right_dim["left"] = 1220
-                        elif (delay < 0.56):
+                        elif (hoop_time < 0.54):
+                            right_dim["left"] = 1230
+                        elif (hoop_time < 0.56):
                             right_dim["left"] = 1260
-                        elif (delay < 0.58):
+                        elif (hoop_time < 0.58):
                             right_dim["left"] = 1280
-                        elif (delay < 0.65):
+                        elif (hoop_time < 0.6):
+                            right_dim["left"] = 1290
+                        elif (hoop_time < 0.65):
                             right_dim["left"] = 1300
-                        elif (delay < 0.7):
+                        elif (hoop_time < 0.7):
                             right_dim["left"] = 1340
-                        elif (delay < 0.73):
+                        elif (hoop_time < 0.73):
                             right_dim["left"] = 1360
-                        elif (delay < 1):
+                        elif (hoop_time < 1):
                             right_dim["left"] = 1380
                         else:
+                            print("    Kick cancelled: missed timing")
                             state = "waiting"
                             continue
                         state = "kicking"
@@ -91,6 +95,10 @@ with mss() as sct:
                     rightSS = cv.cvtColor(np.array(sct.grab(right_dim)), cv.COLOR_BGRA2GRAY)
                     resRight = cv.matchTemplate(rightSS, RIGHT_TEMPLATE, MATCH_METHOD)
                     if (cv.minMaxLoc(resRight)[0] < 0.2):
-                        di.press(KICK_KEY)
-                        print(f"    Kicked on: {right_dim['left']}")
+                        if ((time() - kick_time) > 2.9):
+                            di.press(KICK_KEY)
+                            print(f"    Kicked on: {right_dim['left']}")
+                            kick_time = time()
+                        else:
+                            print("    Kick cancelled: too fast")
                         state = "waiting"
